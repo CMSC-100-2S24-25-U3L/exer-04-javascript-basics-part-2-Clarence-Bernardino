@@ -7,7 +7,7 @@ function generateUniqueID(firstName, lastName) {
     // check if they are strings
     if (typeof firstName !== "string" && typeof lastName !== "string") {
         return false;
-    }
+    }  
 
     // generateUniqueID(“Alan”, “Turing”)
     // returns: “aturing5133f34e”
