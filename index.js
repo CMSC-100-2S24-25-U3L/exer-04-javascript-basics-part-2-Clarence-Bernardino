@@ -1,24 +1,23 @@
-// fs = require("fs");
-// vuid = require("vuid");
-// validator = require("validator");
-// import isEmail from 'validator/lib/isEmail';
+import { appendFileSync } from 'node:fs';
+import isEmail from 'validator/lib/isEmail.js';
+import { v4 as uuidv4 } from 'uuid';
 
 function generateUniqueID(firstName, lastName) {
     // check if they are strings
-    if (typeof firstName !== "string" && typeof lastName !== "string") {
+    if (typeof firstName !== "string" || typeof lastName !== "string") {
         return false;
-    }  
+    }
 
     // generateUniqueID(“Alan”, “Turing”)
     // returns: “aturing5133f34e”
     const FirstLetter = firstName[0].toLowerCase();
     const LastName = lastName.toLowerCase();
-    const uniqueString = vuid().substring(0, 8) // get only 8 letters
+    const uniqueString = uuidv4().substring(0, 8) // get only 8 letters
 
     return FirstLetter + LastName + uniqueString;
 }
 
-function addAccount(userData) {
+export function addAccount(userData) {
     // e.g addAccount([“Alan”, ”Turing”, “aturing@w3c.com”, 58]);
 
     // 1 Prepared by CAG Angcana
@@ -40,19 +39,19 @@ function addAccount(userData) {
     const [firstName, lastName, email, age] = userData;
 
     // check if they are strings or not
-    if (typeof firstName !== "string" || typeof lastName !== "string" || typeof email !== "string") {
-        console.log("Error at: check if they are strings or not");
+    if (!firstName.trim() || !lastName.trim() || !email.trim()) {
+        console.log("Error: Fields cannot be empty or just spaces");
         return false;
     }
 
     // - the first name, last name, and email are non-empty strings
     // use trim to make sure "   " are not allowed
-    if (!firstName.trim() && !lastName.trim(), !email.trim()) {
+    if (!firstName.trim() && !lastName.trim() && !email.trim()) {
         console.log("Error at: use trim to make sure  '   ' are not allowed");
         return false
     }
     
-    if (!validator.isEmail(email)) {
+    if (!isEmail(email)) {
         console.log("Error at: !validator.isEmail(email)");
         return false;
     }
@@ -66,16 +65,12 @@ function addAccount(userData) {
     const saveToUsers = `${firstName},${lastName},${email},${age},${uniqueID}\n`;
 
     // apped to file, error checking from geeks for geeks
-    fs.appendFile("users.txt", saveToUsers, "utf8",
-        // callback function
-        function (err) {
-            if (err) throw err;
-
-            // if no error
-            console.log("Data is appended to file successfully.");
-            return true;
+    appendFileSync("users.txt", saveToUsers, "utf8", function (err) {
+        if (err) {
+            console.log("Error writing to file:", err);
+            return false;
         }
-    )
+        console.log("Data successfully saved.");
+    });
+    return true;
 }
-
-export default addAccount
